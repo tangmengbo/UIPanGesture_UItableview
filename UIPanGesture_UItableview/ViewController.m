@@ -14,10 +14,17 @@
 #define Gao_HEIGHT [UIScreen mainScreen].bounds.size.height
 #define BL_Kuan [UIScreen mainScreen].bounds.size.width/375
 
+typedef enum{
+    Top = 0,
+    Bottom,
+}TopOrBottom;//从顶部开始拖动还是从底部开始拖动
+
 @interface ViewController ()<UITableViewDelegate,UITableViewDataSource>
 {
     BOOL alsoPanGesture;
 }
+
+@property(nonatomic,assign)TopOrBottom  topOrBottom;
 
 @property(nonatomic,strong)HJGestureTable * trendsTableView;
 
@@ -46,6 +53,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.topOrBottom = Bottom;
     self.view.backgroundColor = [UIColor whiteColor];
     
     self.topOriginY = Nav_TopHeight+50*BL_Kuan;
@@ -129,7 +137,11 @@
     {
         //当self.trendsTableView拖动结束时  让self.trendsTableView的位置滚动到最顶部或者最底部
             
-            if (self.trendsTableView.frame.origin.y<=self.topOriginY+(self.bottomOriginY-self.topOriginY)/2) {
+        if (self.topOrBottom == Bottom) {
+            
+            if (self.trendsTableView.frame.origin.y<self.bottomOriginY-30*BL_Kuan) {
+                
+                self.topOrBottom = Top;
                 
                 [UIView animateWithDuration:0.5 animations:^{
                     
@@ -150,7 +162,38 @@
                     
                     self.trendsTableView.scrollEnabled = YES;
                 }] ;
+
             }
+        }
+        else
+        {
+            if (self.trendsTableView.frame.origin.y>self.topOriginY+30*BL_Kuan) {
+                
+                self.topOrBottom = Bottom;
+                
+                [UIView animateWithDuration:0.5 animations:^{
+                    
+                    self.trendsTableView.frame = CGRectMake(self.trendsTableView.frame.origin.x, self.bottomOriginY, self.trendsTableView.frame.size.width, self.trendsTableView.frame.size.height);
+                    
+                } completion:^(BOOL finished) {
+                    
+                    self.trendsTableView.scrollEnabled = YES;
+                }] ;
+
+              
+            }
+            else
+            {
+                [UIView animateWithDuration:0.5 animations:^{
+                                  
+                                  self.trendsTableView.frame = CGRectMake(self.trendsTableView.frame.origin.x, self.topOriginY, self.trendsTableView.frame.size.width, self.trendsTableView.frame.size.height);
+                                  
+                              } completion:^(BOOL finished) {
+                                  
+                                  self.trendsTableView.scrollEnabled = YES;
+                              }] ;
+            }
+        }
     }
     
 }
